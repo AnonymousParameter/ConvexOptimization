@@ -1,5 +1,4 @@
 import numpy as np
-import random
 import os
 
 def RandomDataGenerator():
@@ -24,8 +23,8 @@ def RandomDataGenerator():
         e = np.random.normal(0, 0.1, m)
         b = np.dot(A, x) + e
 
-        np.save(os.path.join(data_folder, "A_{}.npy".format(i+1)), A)
-        np.save(os.path.join(data_folder, "b_{}.npy".format(i+1)), b)
+        np.save(os.path.join(data_folder, 'A_{}.npy'.format(i+1)), A)
+        np.save(os.path.join(data_folder, 'b_{}.npy'.format(i+1)), b)
 
     np.save(os.path.join(data_folder, "x.npy"), x)
 

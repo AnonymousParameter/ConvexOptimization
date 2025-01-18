@@ -1,28 +1,35 @@
-def proximal_gradient(A_all, b_all, lambda_reg, x_true, x_opt, max_iter=1000, tol=1e-6):
-    x_pgd = np.zeros(n)
-    pgd_dist_true = []
-    pgd_dist_opt = []
-    
-    # 计算Lipschitz常数 L = ||A_all||_2^2
-    L = np.linalg.norm(A_all, ord=2)**2
-    t = 1.0 / L  # 步长
-    
-    for iter in range(1, max_iter+1):
-        grad = A_all.T @ (A_all @ x_pgd - b_all)
-        x_temp = x_pgd - t * grad
-        x_pgd = soft_threshold(x_temp, lambda_reg * t)
-        
-        # 记录距离
-        dist_true = np.linalg.norm(x_pgd - x_true)
-        dist_opt = np.linalg.norm(x_pgd - x_opt)
-        pgd_dist_true.append(dist_true)
-        pgd_dist_opt.append(dist_opt)
-        
-        # 检查终止条件
-        if np.linalg.norm(A_all @ x_pgd - b_all) < tol:
-            print(f'Proximal Gradient Method converged in {iter} iterations.')
+import numpy as np
+from DataHandle import *
+
+def soft_threshold(x, threshold):
+    return np.sign(x) * np.maximum(np.abs(x) - threshold, 0.0)
+
+
+def proximal_gradient(A_all, b_all, lambda_reg, alpha, max_iter, tol):
+    xk = np.zeros(A_all.shape[1])
+    # print(xk)
+    xk_list = [0, ]
+    for _ in range(max_iter):
+        xk_half = xk - alpha * np.dot(A_all.T, (A_all @ xk - b_all))
+        # print(xk_half)
+        xk = soft_threshold(xk_half, lambda_reg * alpha)
+        if np.linalg.norm(xk - xk_list[-1], ord = 2) < tol:
             break
-    else:
-        print(f'Proximal Gradient Method reached maximum iterations ({max_iter}).')
-    
-    return pgd_dist_true, pgd_dist_opt
+        xk_list.append(xk)
+    xk_list.pop(0)
+    # print(xk_list)
+        # print(xk)
+    return xk_list
+
+ 
+# 显示图形
+if __name__ == '__main__':
+    lambda_reg = 10
+    alpha = 0.001
+    max_iter = 2000
+    tol = 1e-6
+    N = 10
+    A_all, b_all, x_true = load_data(N)
+    xk_list = proximal_gradient(A_all, b_all, lambda_reg, alpha, max_iter, tol)
+    dist_xk2true, dist_xk2opt = handle_data(xk_list, x_true)
+    draw_line(dist_xk2true, dist_xk2opt, "proximal gradient with lambda = {}, alpha = {}, tol = {}".format(lambda_reg, alpha, tol))

@@ -47,7 +47,7 @@ def draw_line(dist_xk2true, dist_xk2opt, name):
 
     # 标题设置
     plt.title(name)
-    plt.xlabel("interation number")
+    plt.xlabel("interation")
     plt.ylabel("distance")
     # 图例设置
     plt.legend()

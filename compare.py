@@ -7,14 +7,14 @@ ASize = (5, 200)
 BSize = 5
 XSize = 200
 
-alpha = 0.001
-lam = 0.1
+alpha = 0.005
+lam = 10
 
 def load_data():
     A=[]                
     b=[]
     X=[]
-    data_folder = "python\\ConvexOptimization\\randomData"
+    data_folder = "python\ConvexOptimization\\randomData"
     # 使用循环加载每个文件并将数组添加到列表中
     for i in range(1, 11):
         Ai_filename= os.path.join(data_folder, f'A_{i}.npy')
@@ -26,7 +26,6 @@ def load_data():
         b.append(bi)
     x_filename= os.path.join(data_folder, f'x.npy')
     X = np.load(x_filename)
-
     return A,b,X
 
 def thread_hold(lam,alpha,xk_half):
@@ -42,25 +41,18 @@ def thread_hold(lam,alpha,xk_half):
 
 def proximal_gradient(A,b,X,alpha,lam,max_iter=2000):
     xk=np.zeros(XSize)
-    print(A[0].shape[1])
     dist2x_true=[]
     xk_sequence=[]
     delta=np.zeros(XSize)
-
     # for i in range(500):
     k=0
-
     while k<max_iter:
         delta=np.zeros(XSize)
         for j in range(10):
             # xk_half=xk-alpha*np.dot(A[j].T,np.dot(A[j],xk)-b[j])
             delta+=np.dot(A[j].T,np.dot(A[j],xk)-b[j])
-
         xk_half=xk-alpha*delta
-        # print(xk_half)
         xk_new=thread_hold(lam,alpha,xk_half)
-        # print(np.linalg.norm(xk_new-X,ord=2))
-        # print(xk_new)
         if np.linalg.norm(xk_new-xk,ord=2)<1e-5:
             break
         dist2x_true.append(np.linalg.norm(xk_new-X,ord=2))
@@ -73,7 +65,6 @@ def proximal_gradient(A,b,X,alpha,lam,max_iter=2000):
 if __name__ == '__main__':
     A,b,X=load_data()
     xk,dist2x_true,xk_sequence=proximal_gradient(A,b,X,alpha,lam)
-
     dist2x_opt=[]
     for i, data in enumerate(xk_sequence):
         dist2x_opt.append(np.linalg.norm(data - xk, ord=2))
